@@ -1,0 +1,97 @@
+@font-face {
+  font-family: Zig;
+  src: url("fonts/zig_____.ttf");
+}
+
+#textGrid {
+    -fx-background-color:   black;
+    -fx-padding: 1px;
+}
+
+#dataGrid {
+    -fx-padding: 1px;
+}
+
+#mainGrid {
+    -fx-background-color:   black;
+}
+
+#textDisplay {
+    -fx-text-fill:  white;
+    -fx-font-family: Zig;
+}
+
+.text {
+    -fx-text-fill:  white;
+    -fx-font-family: Zig;
+}
+
+.inventoryText {
+    -fx-text-fill:  yellow;
+    -fx-font-family: Zig;
+}
+
+.userText {
+    -fx-text-fill:  #41FF00;
+    -fx-font-family: Zig;
+}
+
+#mapLabel {
+    -fx-text-fill:  white;
+    -fx-font-family: Zig;
+}
+
+#input {
+    -fx-background-color: black;
+    -fx-text-inner-color: #41FF00;
+    -fx-font-family: Zig;
+    -fx-padding: 0px;
+}
+
+.inputBox {
+    -fx-border-color: white;
+    -fx-background-color: blue;
+}
+
+.heading {
+    -fx-text-fill:  white;
+    -fx-font-family: Zig;
+    -fx-font-size: 1.5em;
+}
+
+.UIGrid {
+    -fx-background-color: black;
+    -fx-border-color: white;
+}
+
+.scroll-pane {
+    -fx-background: black;
+    -fx-background-color: black;
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: black;
+}
+
+.scroll-bar:vertical{
+    -fx-background-color: transparent;
+}
+
+.increment-button,
+.decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-color: white;
+    -fx-text-fill: white;
+}
+
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 0em;
+}
