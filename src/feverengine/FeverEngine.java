@@ -20,7 +20,7 @@ public class FeverEngine extends Application
     public void start(Stage window) {
        
        // Establish the map
-       Map map1 = new Map();
+      Map map1 = new Map();
         
        // Establish the controller
        Controller controller = new Controller();

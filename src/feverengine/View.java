@@ -125,6 +125,9 @@ public class View extends Application {
     
     boolean fullscreen = true;
     
+    // Developer variables
+    boolean showItemAreas = false; // Should the item positions be highlighted in red?
+    
     @Override
     public void start(Stage window) {
         System.out.println("Opening view");
@@ -518,6 +521,11 @@ public class View extends Application {
         mainImageStack.getChildren().clear();
         mainImageStack.getChildren().add(mainImageView);
         
+        // Establish and clear the graphics context
+        GraphicsContext gc = mainImageCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, mainImageCanvas.getWidth(), mainImageCanvas.getHeight());
+        gc.setGlobalAlpha(0.3);
+        
         // Get the player location
         int x = model.player.getX();
         int y = model.player.getY();
@@ -527,11 +535,46 @@ public class View extends Application {
         mainImageView.setImage(currentRoomImage);
         
         
+        //---------------------------------------------- Draw the item areas
+        
+        // If they item areas should be shown
+        if (showItemAreas == true) {
+            // Get the item positions from the rooms
+            ArrayList<double[]> itemAreas = model.map.gameGrid[x][y].itemPositions;
+            // For every item position
+            for (double[] area: itemAreas) {
+               // Check how many nodes a position has
+               switch (area.length) {
+                    // if the position shape has 4 values (square)
+                    case 4:
+                        // Draw a red rectangle
+                        double x1 = widerGridSize+(area[0]*widerGridSize);
+                        double y1 = gridSize+(area[1]*gridSize);
+                        double x2 = widerGridSize+(area[2]*widerGridSize);
+                        double y2 = gridSize+(area[3]*gridSize);
+                        gc.setFill(Color.RED);
+                        gc.fillRect(x1, y1, x2-x1, y2-y1);
+                        break;
+                    case 6:
+                        // Draw a red triangle
+                        x1 = widerGridSize+(area[0]*widerGridSize);
+                        y1 = gridSize+(area[1]*gridSize);
+                        x2 = widerGridSize+(area[2]*widerGridSize);
+                        y2 = gridSize+(area[3]*gridSize);
+                        double x3 = widerGridSize+(area[4]*widerGridSize);
+                        double y3 = gridSize+(area[5]*gridSize);
+                        double[] xPoints = {x1, x2, x3};
+                        double[] yPoints = {y1, y2, y3};
+                        gc.setFill(Color.RED);
+                        gc.fillPolygon(xPoints, yPoints,3);
+                        break;
+               }
+            }
+                        
+        }
         
         //-------------------------------------------- Add the items to the room
-        
-        // Variable to count what item the for loop is on
-        int itemCount = 0;
+
         // For every item in the room
         for (Item item: model.map.gameGrid[x][y].getItems()) {
             if (item != null) {
@@ -540,7 +583,7 @@ public class View extends Application {
                     mainImageStack.getChildren().add(item.getItemImageView());
             
                     // Get the transform array for the current item position 
-                    double[] transformArray = model.map.gameGrid[x][y].itemPositions.get(itemCount);
+                    double[] transformArray = item.drawPosition;
                 
                     // Scale the item image according to its size and distance
                     item.getItemImageView().setFitWidth(transformArray[2]*item.getScaleSize()*widerGridSize*0.1);
@@ -567,27 +610,13 @@ public class View extends Application {
                     // Move the item's image position to match that of the room co-ordinates
                     item.getItemImageView().setTranslateX(imageX);
                     item.getItemImageView().setTranslateY(imageY);           
-                
-                    // Add 1 to the item count
-                    itemCount++;
-                    // If the item count is bigger than the number of item image positions in the room, go back to the start
-                    if (itemCount > (model.map.gameGrid[x][y].itemPositions.size()-1)) {
-                        itemCount = 0;
-                    }
-                }
-            } else {
-                // Add 1 to the item count
-                itemCount++;
-                // If the item count is bigger than the number of item image positions in the room, go back to the start
-                if (itemCount > (model.map.gameGrid[x][y].itemPositions.size()-1)) {
-                    itemCount = 0;
                 }
             }
         }
         
         
         
-        //---------------------------------------Draw the entities in the room
+        //-------------------------------------------Draw the entities in the room
         
         // Get the entites present
         ArrayList<Entity> entities = model.presentEntities();
@@ -595,16 +624,17 @@ public class View extends Application {
         // For every item in the room
         for (Entity entity: entities) {
             if (entity != null) {
-                if (entity.itemImage != null) {
+                if (entity.entityImage != null) {
+                    
                     // Add the item to the main image stack
-                    mainImageStack.getChildren().add(item.getItemImageView());
+                    mainImageStack.getChildren().add(entity.entityImageView);
             
                     // Get the transform array for the current item position 
-                    double[] transformArray = model.map.gameGrid[x][y].itemPositions.get(itemCount);
+                    double[] transformArray = entity.drawPosition;
                 
                     // Scale the item image according to its size and distance
-                    item.getItemImageView().setFitWidth(transformArray[2]*item.getScaleSize()*widerGridSize*0.1);
-                    item.getItemImageView().setPreserveRatio(true);
+                    entity.entityImageView.setFitWidth(transformArray[2]*entity.scaleSize*widerGridSize*0.1);
+                    entity.entityImageView.setPreserveRatio(true);
                 
                     double shadowHeight = gridSize/10;
                     double shadowWidth = shadowHeight/2;
@@ -617,34 +647,23 @@ public class View extends Application {
                     shadow.setRadius(12);  
                     shadow.setWidth(shadowWidth);
                     shadow.setOffsetY(shadowHeight/10);
-                    item.getItemImageView().setEffect(shadow);  
+                    entity.entityImageView.setEffect(shadow);  
                 
                     // Set the current X to the room's item position
                     double imageX = transformArray[0]*widerGridSize;
                     // Set the current y to the room's item position minus half the item height to account for different sized items
-                    double imageY = transformArray[1]*gridSize - ((item.getItemImageView().getBoundsInParent().getHeight()-shadowHeight)/2);
+                    double imageY = transformArray[1]*gridSize - ((entity.entityImageView.getBoundsInParent().getHeight()-shadowHeight)/2);
             
                     // Move the item's image position to match that of the room co-ordinates
-                    item.getItemImageView().setTranslateX(imageX);
-                    item.getItemImageView().setTranslateY(imageY);           
-                
-                    // Add 1 to the item count
-                    itemCount++;
-                    // If the item count is bigger than the number of item image positions in the room, go back to the start
-                    if (itemCount > (model.map.gameGrid[x][y].itemPositions.size()-1)) {
-                        itemCount = 0;
-                    }
-                }
-            } else {
-                // Add 1 to the item count
-                itemCount++;
-                // If the item count is bigger than the number of item image positions in the room, go back to the start
-                if (itemCount > (model.map.gameGrid[x][y].itemPositions.size()-1)) {
-                    itemCount = 0;
+                    entity.entityImageView.setTranslateX(imageX);
+                    entity.entityImageView.setTranslateY(imageY);  
+                    System.out.println("Object drawn");
                 }
             }
         }
         
+        gc.setGlobalAlpha(1);
+        addLines(mainImageCanvas);
         // Add the lines over top of the image
         mainImageStack.getChildren().add(mainImageCanvas);
     }
@@ -683,7 +702,22 @@ public class View extends Application {
     
     
     
-    //-------------------------------------------------------- Effects --------//
+    
+    //------------------------------------------------------ Developer Controls
+    
+    // Toggle whether to draw the item positions on to the main image
+    public void toggleItemAreas() {
+        if (showItemAreas == false) {
+            showItemAreas = true;
+        } else {
+            showItemAreas = false;
+        }
+    }
+    
+    
+    
+    
+    //--------------------------------------------------------------- Effects
     
         
     // Add glow to text

@@ -31,9 +31,15 @@ public class Controller
                     // array
                     inputArray = parser.parse(input).split(" ",-1);
                     
+                    
+                    //------------------------------------------- Playing State
+                    
                     System.out.println("Case 0");
                     // Check parsed input for commands
         
+                    
+                    //------------------------------------------ Player actions
+                    
                     // If the user says go
                     if (inputArray[0].equals("go")) {
                     // Check they give a direction
@@ -147,6 +153,10 @@ public class Controller
                     System.out.println("updating model");
                     model.update();
                 }
+                
+                
+                //------------------------------------------------Game Functions
+                
                 else if (inputArray[0].equals("quit")) {
                     model.quit();
                 }   
@@ -158,11 +168,33 @@ public class Controller
                 }
                 else if (inputArray[0].equals("help")) {
                     output.help();
-                } else {
+                } 
+                
+                
+                
+                //-----------------------------------------------Developer Commands
+                
+                else if (inputArray[0].equals("cmd")) {
+                    if (inputArray[1].equals("toggleitemareas")) {
+                        output.view.toggleItemAreas();
+                        output.toggleItemAreas();
+                    }
+                }
+                
+                
+                
+                //----------------------------------------------No command
+                
+                else {
                     output.unknownCommand();
                 }
                 break;
-            // If the state is yes/no
+                
+                
+                
+            //---------------------------------------------------Yes/No State
+                
+                
             case 1: System.out.println("Getting yes or no");
                     System.out.println("Case 1");
                     // Standardise the input
@@ -191,14 +223,21 @@ public class Controller
                         output.incorrectInput();
                     }
                     break;
-            // if the state is save game
+                    
+                    
+                    
+            //--------------------------------------------------Save Game State
+                    
             case 2: System.out.println("getting save name");
                     System.out.println("Case 2");
                     // Return to the normal state
                     state = 0;                        // Save the game
                     model.saveGame(input);
                     break;
-            // if the state is load game
+                    
+                    
+            //--------------------------------------------------Load Game State
+                  
             case 3: System.out.println("getting load name");
                     System.out.println("Case 3");
                     // Return to the normal state

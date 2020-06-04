@@ -31,6 +31,7 @@ public class Model
         output.file = file;
         controller = setController;
         map = setMap;
+        map.model = this;
         // link the classes for the fileController
         file.map = map;
         file.output = output;
@@ -184,13 +185,18 @@ public class Model
         ArrayList<Item> items = player.getItems();
         // Check if the user has referenced one of them
         if (itemReferencePresent(items, item, false) != null) {
-            // Output message
-            output.itemDropped(itemReferencePresent(items, item, false).getName());
-            // Add item to the room and remove the item from the player's inventory
-            map.gameGrid[x][y].add(itemReferencePresent(items, item, true));
+            // if the item can be added to the room
+            if (map.gameGrid[x][y].add(itemReferencePresent(items, item, false))) {
+                // Output message
+                output.itemDropped(itemReferencePresent(items, item, false).getName());
+                // Remove the object
+                itemReferencePresent(items, item, true);
+            } else {
+                output.cantDropAnything();
+            }
             // Successful reference
         } else {
-            // Aler the user the item couldn't be found
+            // Alert the user the item couldn't be found
             output.itemCarryFail(item);
         }
     }

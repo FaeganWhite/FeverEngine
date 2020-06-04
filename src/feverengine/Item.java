@@ -12,7 +12,7 @@ public class Item
     boolean visible = true;
     Image itemImage;
     ImageView itemImageView;
-    double[] itemImagePosition = new double[2];
+    double[] drawPosition = {0, 0, 0};
     double scaleSize;
     
     public Item(String setName, String setDescription, double setWeight, int setSize, Image newImage, double newScaleSize){
@@ -43,15 +43,6 @@ public class Item
     
     public ImageView getItemImageView() {
         return itemImageView;
-    }
-    
-    // Return the location of the item image in the main 
-    public double getImageX() {
-        return itemImagePosition[0];
-    }
-    
-    public double getImageY() {
-        return itemImagePosition[1];
     }
     
     // \\return the scaling factor for the image

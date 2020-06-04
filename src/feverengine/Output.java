@@ -11,20 +11,25 @@ import javafx.scene.paint.Color;
  */
 public class Output
 {
-    // Establish the classes
+    //----------------------------------------------------- Establish the classes
     Map map;
     Controller controller;
     Player player;
     View view;
     FileControl file;
     
-    // Establish the method to follow when forwarding a task
-    int futureFunction = 0;
-    
     // On creation, set the controller to the game controller
     public Output(Controller setController){
         controller = setController;
     }
+    
+    
+    
+    
+    //----------------------------------------------------------Future Functions
+    
+    // Establish the method to follow when forwarding a task
+    int futureFunction = 0;
     
     // Find the method to follow when called by the controller in 
     // the next input cycle
@@ -44,6 +49,12 @@ public class Output
                     break;
         }
     }
+    
+    
+    
+    
+    //-------------------------------------------------------- Player's Actions
+    
     
     // Describe the room to the user
     public void describeRoom(Room room,ArrayList<String> surroundingsList){
@@ -112,6 +123,87 @@ public class Output
         }
     }
     
+    // List items from array
+    public void listItems(ArrayList<Item> items) {
+        // For every item in the list
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i)!=null) {
+                // print the item
+                view.printResponse("a ", Color.WHITE, false);
+                view.printResponse(items.get(i).getName(), Color.YELLOW, false);
+                // Add a comma if listing items
+                if (i < items.size()-2){
+                    view.printResponse(", ", Color.WHITE, false);
+                }
+                // Add an 'and' if it's the last item in the list
+                if (items.size()-3 < i && i < items.size()-1){
+                    view.printResponse(" and ", Color.WHITE, false);
+                }
+            }
+        }
+        view.printResponse(".", Color.WHITE, false);
+    }
+    
+    // Inform the user they successfully picked up an item
+    public void itemTaken(String name){
+        view.printResponse("You picked up the ", Color.WHITE, true);
+        view.printResponse(name, Color.YELLOW, false);
+        view.printResponse(".", Color.WHITE, false);
+    }
+    
+    // Inform the user they successfully dropped up an item
+    public void itemDropped(String name){
+        view.printResponse("You dropped the ", Color.WHITE, true);
+        view.printResponse(name, Color.YELLOW, false);
+        view.printResponse(".", Color.WHITE, false);
+    }
+    
+    // Inform the user they successfully put an item in container
+    public void itemDroppedIn(String name, String container){
+        view.printResponse("You put the ", Color.WHITE, true);
+        view.printResponse(name, Color.YELLOW, false);
+        view.printResponse(" in the ", Color.WHITE, false);
+        view.printResponse(container, Color.YELLOW, false);
+        view.printResponse(".", Color.WHITE, false);
+    }
+    
+    // Inform the user they successfully dropped up an item
+    public void itemEaten(String name){
+        view.printResponse("You ate the ", Color.WHITE, true);
+        view.printResponse(name, Color.YELLOW, false);
+        view.printResponse(".", Color.WHITE, false);
+    }
+    
+    // List the items in the search
+    public void search(ArrayList<Item> items, String container){
+        // If there are items in the container
+        if (items.size() > 0) {
+            // print the items in the room
+            view.printResponse("In the ", Color.WHITE, true);
+            view.printResponse(container, Color.YELLOW, false);
+            view.printResponse(" there is ", Color.WHITE, false);
+            listItems(items);
+        } else {
+            // otherwise say the container is empty
+            view.printResponse("The ", Color.WHITE, true);
+            view.printResponse(container, Color.YELLOW, false);
+            view.printResponse(" is empty.", Color.WHITE, false); 
+        }
+    }
+    
+    // Look at an item
+    public void lookAt(Item item){
+        view.printResponse(item.description, Color.WHITE, true);
+    }
+    
+    // Wait
+    public void waitPrint(){
+        view.printResponse("You wait around for a little while.", Color.WHITE, true);
+    }
+    
+    //----------------------------------------------------------Yes No Questions
+    
+    
     // List the items in the player's inventory
     public void incorrectInput(){
         // Send the output to the view
@@ -130,6 +222,56 @@ public class Output
         futureFunction = 0;
     }
     
+        // End the game for the user when they quit
+    public void checkOverwrite(){
+        System.out.println("checking if should overwrite");
+        // Print the question
+        view.printResponse("This save already exists, are you sure you want to overide? ", Color.WHITE, true);
+        view.printResponse("(y/n)", Color.RED, false);
+        // Set the controller to the yes/no state 
+        controller.state = 1;
+        // Set the next input cycle to save the game
+        futureFunction = 1;
+    }
+    
+    // End the game for the user when they quit
+    public void checkSaveTryAgain(){
+        System.out.println("checking if should try again");
+        // Print the question
+        view.printResponse("The save was unsuccessful, would you like to try again? ", Color.WHITE, true);
+        view.printResponse("(y/n)", Color.RED, false);
+        // Set the controller to the yes/no state 
+        controller.state = 1;
+        // Set the next input cycle to save the game
+        futureFunction = 2;
+    }
+    
+    // End the game for the user when they quit
+    public void fileDoesNotExist(){
+        // Print the question
+        view.printResponse("This file cannot be found, would you like to try again? ", Color.WHITE, true);
+        view.printResponse("(y/n)", Color.RED, false);
+        // Set the controller to the yes/no state 
+        controller.state = 1;
+        // Set the next input cycle to save the game
+        futureFunction = 3;
+    }
+    
+    // End the game for the user when they quit
+    public void checkLoadTryAgain(){
+        System.out.println("checking if should try again");
+        // Print the question
+        view.printResponse("The load was unsuccessful, would you like to try again? ", Color.WHITE, true);
+        view.printResponse("(y/n)", Color.RED, false);
+        // Set the controller to the yes/no state 
+        controller.state = 1;
+        // Set the next input cycle to save the game
+        futureFunction = 3;
+    }
+    
+    
+    // ------------------------------------------------------- Mechanical
+    
     // End the game for the user when they quit
     public void quit(){
         if (controller.yesNoBool == true) {
@@ -138,29 +280,7 @@ public class Output
             controller.model.look();
         }
     }
-          
-    // Get the name for the game save
-    public void getSaveName(){
-        System.out.println("asking for save name");
-        // Print the question
-        view.printResponse("What would you like to name your ", Color.WHITE, true);
-        view.printResponse("save", Color.RED, false);
-        view.printResponse("?", Color.WHITE, false);
-        // Set the controller state to get the saves name
-        controller.state = 2;
-    }
-    
-    // Get the name for the game save
-    public void getLoadName(){
-        System.out.println("asking for load name");
-        // Print the question
-        view.printResponse("What is the name of the file you would like to ", Color.WHITE, true);
-        view.printResponse("load", Color.RED, false);
-        view.printResponse("?", Color.WHITE, false);
-        // Set the controller state to get the saves name
-        controller.state = 3;
-    }
-    
+       
     // Get the name for the game save
     public void help(){
         System.out.println("printing help");
@@ -218,7 +338,7 @@ public class Output
         view.printResponse(" > LIST THE GAME COMMANDS", Color.LIGHTGRAY, false);
     }
     
-    // load the game or return to game
+        // load the game or return to game
     public void saveGame(){
         System.out.println("Save game method");
         if (controller.yesNoBool == true) {
@@ -251,95 +371,6 @@ public class Output
         }
     }
     
-    // Tell the user the game saved succesfully
-    public void saveSuccessful() {
-        view.printResponse("Save successful\n", Color.WHITE, true);
-    }
-    
-    // Tell the user the game saved succesfully
-    public void loadSuccessful() {
-        view.printResponse("Load successful\n", Color.WHITE, true);
-        view.loadUpdateGUI();
-    }
-    
-    // End the game for the user when they quit
-    public void checkOverwrite(){
-        System.out.println("checking if should overwrite");
-        // Print the question
-        view.printResponse("This save already exists, are you sure you want to overide? ", Color.WHITE, true);
-        view.printResponse("(y/n)", Color.RED, false);
-        // Set the controller to the yes/no state 
-        controller.state = 1;
-        // Set the next input cycle to save the game
-        futureFunction = 1;
-    }
-    
-    // End the game for the user when they quit
-    public void checkSaveTryAgain(){
-        System.out.println("checking if should try again");
-        // Print the question
-        view.printResponse("The save was unsuccessful, would you like to try again? ", Color.WHITE, true);
-        view.printResponse("(y/n)", Color.RED, false);
-        // Set the controller to the yes/no state 
-        controller.state = 1;
-        // Set the next input cycle to save the game
-        futureFunction = 2;
-    }
-    
-    // End the game for the user when they quit
-    public void fileDoesNotExist(){
-        // Print the question
-        view.printResponse("This file cannot be found, would you like to try again? ", Color.WHITE, true);
-        view.printResponse("(y/n)", Color.RED, false);
-        // Set the controller to the yes/no state 
-        controller.state = 1;
-        // Set the next input cycle to save the game
-        futureFunction = 3;
-    }
-    
-    // End the game for the user when they quit
-    public void checkLoadTryAgain(){
-        System.out.println("checking if should try again");
-        // Print the question
-        view.printResponse("The load was unsuccessful, would you like to try again? ", Color.WHITE, true);
-        view.printResponse("(y/n)", Color.RED, false);
-        // Set the controller to the yes/no state 
-        controller.state = 1;
-        // Set the next input cycle to save the game
-        futureFunction = 3;
-    }
-    
-    // Alert the user that the direction they entered wasn't in the library
-    public void unknownDirection(){
-        view.printResponse("I don't understand that direction.", Color.WHITE, true);
-    }
-    
-    // Alert the user that they cant move in the desired direction
-    public void cantMove(){
-        view.printResponse("You cannot move in this direction.", Color.WHITE, true);
-    }
-    
-    // List items from array
-    public void listItems(ArrayList<Item> items) {
-        // For every item in the list
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i)!=null) {
-                // print the item
-                view.printResponse("a ", Color.WHITE, false);
-                view.printResponse(items.get(i).getName(), Color.YELLOW, false);
-                // Add a comma if listing items
-                if (i < items.size()-2){
-                    view.printResponse(", ", Color.WHITE, false);
-                }
-                // Add an 'and' if it's the last item in the list
-                if (items.size()-3 < i && i < items.size()-1){
-                    view.printResponse(" and ", Color.WHITE, false);
-                }
-            }
-        }
-        view.printResponse(".", Color.WHITE, false);
-    }
-    
     // Draw a text based map to aid in navigation and debugging
     public void drawMap(Map newMap,int newX,int newY){
         map = newMap;
@@ -358,34 +389,55 @@ public class Output
         }
     }
     
-    // Inform the user they successfully picked up an item
-    public void itemTaken(String name){
-        view.printResponse("You picked up the ", Color.WHITE, true);
-        view.printResponse(name, Color.YELLOW, false);
-        view.printResponse(".", Color.WHITE, false);
+    
+    // ------------------------------------------------------- Get Names
+   
+    // Get the name for the game save
+    public void getSaveName(){
+        System.out.println("asking for save name");
+        // Print the question
+        view.printResponse("What would you like to name your ", Color.WHITE, true);
+        view.printResponse("save", Color.RED, false);
+        view.printResponse("?", Color.WHITE, false);
+        // Set the controller state to get the saves name
+        controller.state = 2;
     }
     
-    // Inform the user they successfully dropped up an item
-    public void itemDropped(String name){
-        view.printResponse("You dropped the ", Color.WHITE, true);
-        view.printResponse(name, Color.YELLOW, false);
-        view.printResponse(".", Color.WHITE, false);
+    // Get the name for the game save
+    public void getLoadName(){
+        System.out.println("asking for load name");
+        // Print the question
+        view.printResponse("What is the name of the file you would like to ", Color.WHITE, true);
+        view.printResponse("load", Color.RED, false);
+        view.printResponse("?", Color.WHITE, false);
+        // Set the controller state to get the saves name
+        controller.state = 3;
     }
     
-    // Inform the user they successfully put an item in container
-    public void itemDroppedIn(String name, String container){
-        view.printResponse("You put the ", Color.WHITE, true);
-        view.printResponse(name, Color.YELLOW, false);
-        view.printResponse(" in the ", Color.WHITE, false);
-        view.printResponse(container, Color.YELLOW, false);
-        view.printResponse(".", Color.WHITE, false);
+
+    
+    //-------------------------------------------------------- Alerts
+    
+    
+    // Tell the user the game saved succesfully
+    public void saveSuccessful() {
+        view.printResponse("Save successful\n", Color.WHITE, true);
     }
     
-    // Inform the user they successfully dropped up an item
-    public void itemEaten(String name){
-        view.printResponse("You ate the ", Color.WHITE, true);
-        view.printResponse(name, Color.YELLOW, false);
-        view.printResponse(".", Color.WHITE, false);
+    // Tell the user the game saved succesfully
+    public void loadSuccessful() {
+        view.printResponse("Load successful\n", Color.WHITE, true);
+        view.loadUpdateGUI();
+    }
+    
+    // Alert the user that the direction they entered wasn't in the library
+    public void unknownDirection(){
+        view.printResponse("I don't understand that direction.", Color.WHITE, true);
+    }
+    
+    // Alert the user that they cant move in the desired direction
+    public void cantMove(){
+        view.printResponse("You cannot move in this direction.", Color.WHITE, true);
     }
     
     // Alert the user that the item they entered wasn't in the library
@@ -441,23 +493,6 @@ public class Output
         view.printResponse("What would you like to search?", Color.WHITE, true);
     }
     
-    // List the items in the search
-    public void search(ArrayList<Item> items, String container){
-        // If there are items in the container
-        if (items.size() > 0) {
-            // print the items in the room
-            view.printResponse("In the ", Color.WHITE, true);
-            view.printResponse(container, Color.YELLOW, false);
-            view.printResponse(" there is ", Color.WHITE, false);
-            listItems(items);
-        } else {
-            // otherwise say the container is empty
-            view.printResponse("The ", Color.WHITE, true);
-            view.printResponse(container, Color.YELLOW, false);
-            view.printResponse(" is empty.", Color.WHITE, false); 
-        }
-    }
-    
     // Increase the health
     public void healthChange(int health){
         view.printResponse("Health ", Color.WHITE, true);
@@ -503,16 +538,6 @@ public class Output
         
     }
     
-    // Look at an item
-    public void lookAt(Item item){
-        view.printResponse(item.description, Color.WHITE, true);
-    }
-    
-    // Wait
-    public void waitPrint(){
-        view.printResponse("You wait around for a little while.", Color.WHITE, true);
-    }
-    
     // Alert the user that they have died and the game is over
     public void gameOver(){
         view.printResponse("You died! Game over.", Color.RED, true);
@@ -522,4 +547,17 @@ public class Output
     public void unknownCommand() {
 	view.printResponse("That input was not recognised!", Color.RED, true);
     }
+    
+    public void cantDropAnything() {
+        view.printResponse("You can't drop anything here.", Color.RED, true);
+    }
+    
+    
+    
+    //--------------------------------------------------------Developer command Alerts
+    
+    public void toggleItemAreas() {
+        view.printResponse("**item areas toggled**", Color.GOLD, true);
+    }
+    
 }

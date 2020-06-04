@@ -15,9 +15,9 @@ public class Entity
    int x;
    int y;
    int strength;
-   Image itemImage;
-   ImageView itemImageView;
-   double[] itemImagePosition = new double[2];
+   Image entityImage;
+   ImageView entityImageView;
+   double[] drawPosition = {0, 0};
    double scaleSize;
    
    // Establish the inventory
@@ -30,8 +30,8 @@ public class Entity
         health = newHealth;
         strength = newStrength;
         maxHealth = health;
-        itemImage = newImage;
-        itemImageView = new ImageView(itemImage);
+        entityImage = newImage;
+        entityImageView = new ImageView(entityImage);
         scaleSize = newScaleSize;
     }
    

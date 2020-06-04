@@ -17,13 +17,16 @@ public class Map
     // Establish the player
     Player player;
     
+    // Establish the main
+    Model model;
+    
     // Establish all the rooms in the game
-    Room frontRoom = new Room("Front Room", "dust coats every surface", new Image("feverengine/images/backgrounds/frontroom1.jpg"));
-    Room bedroom = new Room("Bedroom", "a slither of light from the curtains cuts through the darkness.", new Image("feverengine/images/backgrounds/bedroom1.jpg"));
-    Room kitchen = new Room("Kitchen", "dirty dishes cover the sideboards.", new Image("feverengine/images/backgrounds/kitchen1.jpg"));
-    Room hallway = new Room("Hallway", "the faded wallpaper peels from the walls.", new Image("feverengine/images/backgrounds/test1.jpg"));
-    Room bathroom = new Room("Bathroom", "the tap drips slowly drips into the sink which is begging to fill.", new Image("feverengine/images/backgrounds/bathroom1.jpg"));
-    Room stairs = new Room("Stairs", "the steps below you creak with every step.", new Image("feverengine/images/backgrounds/test1.jpg"));
+    Room frontRoom = new Room("Front Room", "dust coats every surface", new Image("feverengine/images/backgrounds/frontroom1.jpg"), this);
+    Room bedroom = new Room("Bedroom", "a slither of light from the curtains cuts through the darkness.", new Image("feverengine/images/backgrounds/bedroom1.jpg"), this);
+    Room kitchen = new Room("Kitchen", "dirty dishes cover the sideboards.", new Image("feverengine/images/backgrounds/kitchen1.jpg"), this);
+    Room hallway = new Room("Hallway", "the faded wallpaper peels from the walls.", new Image("feverengine/images/backgrounds/test1.jpg"), this);
+    Room bathroom = new Room("Bathroom", "the tap drips slowly drips into the sink which is begging to fill.", new Image("feverengine/images/backgrounds/bathroom1.jpg"), this);
+    Room stairs = new Room("Stairs", "the steps below you creak with every step.", new Image("feverengine/images/backgrounds/test1.jpg"), this);
         
     // Establish the game grid
     Room[][] gameGrid = new Room[11][11];
@@ -45,29 +48,17 @@ public class Map
         gameGrid[5][6] = hallway;
         
         // Establish all the item positions in the rooms
-        bedroom.addItemPosition(0, 0.94, 1);
-        bedroom.addItemPosition(-0.5, 0.96, 1.1);
-        bedroom.addItemPosition(0.6, 0.90, 0.9);
-        bedroom.addItemPosition(0.75, 0.80, 0.6);
+        double[] square = {-1, 0.8, 1, 1};
+        bedroom.addItemPosition(square);
         
-        bathroom.addItemPosition(0, 0.8, 1);
-        bathroom.addItemPosition(-0.7, 0.65, 0.8);
-        bathroom.addItemPosition(0.4, 0.9, 1.3);
-        bathroom.addItemPosition(-0.4, 0.75, 1.1);
+        double[] square2 = {-0.6, 0.7, 1, 0.6};
+        bathroom.addItemPosition(square2);
         
-        stairs.addItemPosition(0, 0, 1);
-        
-        kitchen.addItemPosition(0, 0.05, 0.8);
-        kitchen.addItemPosition(-0.77, 0.13, 1);
-        kitchen.addItemPosition(0.6, 0.1, 1);
-        kitchen.addItemPosition(-0.3, 0.8, 1.1);
-        
-        frontRoom.addItemPosition(-0.8, 0.5, 1);
-        frontRoom.addItemPosition(0, 0.84, 1);
-        frontRoom.addItemPosition(-0.8, 0.9, 1.2);
-        frontRoom.addItemPosition(0.4, 0.7, 0.7);
-        
-        hallway.addItemPosition(0, 0, 1);
+        double[] trianglek = {-0.2, 0.5, 0.7, 0.95, -1, 0.95};
+        kitchen.addItemPosition(trianglek);
+
+        double[] square4 = {0, 0.7, 1, 1};
+        frontRoom.addItemPosition(square);
     }
     
     // Establish the items in the game
