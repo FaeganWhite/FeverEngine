@@ -8,8 +8,8 @@ public class Player
    private String name;
    private int health;
    private int maxHealth;
-   private int x;
-   private int y;
+   int x;
+   int y;
    private int strength;
    // Establish the inventory
    private ArrayList<Item> inventory = new ArrayList<>();

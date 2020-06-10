@@ -560,4 +560,12 @@ public class Output
         view.printResponse("**item areas toggled**", Color.GOLD, true);
     }
     
+    public void toggleLights() {
+        view.printResponse("**lights toggled**", Color.GOLD, true);
+    }
+    
+    public void toggleMoveItems() {
+        view.printResponse("**moving items toggled**", Color.GOLD, true);
+    }
+    
 }

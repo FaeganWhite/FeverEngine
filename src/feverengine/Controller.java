@@ -175,9 +175,21 @@ public class Controller
                 //-----------------------------------------------Developer Commands
                 
                 else if (inputArray[0].equals("cmd")) {
-                    if (inputArray[1].equals("toggleitemareas")) {
-                        output.view.toggleItemAreas();
-                        output.toggleItemAreas();
+                    if (inputArray.length > 1) {
+                        System.out.println("***CMD***");
+                        if (inputArray[1].equals("toggleitemareas")) {
+                            output.view.toggleItemAreas();
+                            output.toggleItemAreas();
+                        } else if (inputArray[1].equals("togglelights")) {
+                        output.view.toggleLights();
+                        output.toggleLights();
+                        } else if (inputArray[1].equals("go") && inputArray.length > 2) {
+                            if (inputArray[2].equals("items")) {
+                                output.view.toggleMoveItems();
+                                output.toggleMoveItems();
+                                System.out.println("Command enetered - move");
+                            }
+                        }
                     }
                 }
                 

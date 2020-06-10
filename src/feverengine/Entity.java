@@ -17,8 +17,9 @@ public class Entity
    int strength;
    Image entityImage;
    ImageView entityImageView;
-   double[] drawPosition = {0, 0};
+   double[] drawPosition = {0, 0, 0};
    double scaleSize;
+   boolean moved = false;
    
    // Establish the inventory
    ArrayList<Item> inventory = new ArrayList<>();
@@ -64,4 +65,8 @@ public class Entity
        return health;
     }
     
+   public boolean checkMove() {
+       return true;
+   }
+   
 }

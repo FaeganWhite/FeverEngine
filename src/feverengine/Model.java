@@ -1,4 +1,5 @@
 package feverengine;
+import java.util.Random;
 
 import java.util.ArrayList;
 /**
@@ -98,6 +99,8 @@ public class Model
                     look();
                     // set the current room to visited
                     map.gameGrid[x][y-1].visited = true;
+                    // Stop any NPCs from moving from that room
+                    makeNPCsStationary();
                 } else {
                     // If not, tell the player they can't go that way
                     output.cantMove();
@@ -109,6 +112,8 @@ public class Model
                     look();
                     // set the current room to visited
                     map.gameGrid[x][y+1].visited = true;
+                    // Stop any NPCs from moving from that room
+                    makeNPCsStationary();
                 } else {
                     output.cantMove();
                 }
@@ -119,6 +124,8 @@ public class Model
                     look();
                     // set the current room to visited
                     map.gameGrid[x+1][y].visited = true;
+                    // Stop any NPCs from moving from that room
+                    makeNPCsStationary();
                 } else {
                     output.cantMove();
                 }
@@ -129,12 +136,22 @@ public class Model
                     look();
                     // set the current room to visited
                     map.gameGrid[x-1][y].visited = true;
+                    // Stop any NPCs from moving from that room
+                    makeNPCsStationary();
                 } else {
                     output.cantMove();
                 }
                 break;
             default:
                 output.unknownDirection();
+        }
+    }
+    
+    // Make every NPC in the room stationary for that turn
+    public void makeNPCsStationary() {
+        ArrayList<Entity> presentEntities = map.gameGrid[player.x][player.y].entities;
+        for (Entity e: presentEntities) {
+            e.moved = true;
         }
     }
     
@@ -186,7 +203,7 @@ public class Model
         // Check if the user has referenced one of them
         if (itemReferencePresent(items, item, false) != null) {
             // if the item can be added to the room
-            if (map.gameGrid[x][y].add(itemReferencePresent(items, item, false))) {
+            if (map.gameGrid[x][y].add(itemReferencePresent(items, item, false),9999)) {
                 // Output message
                 output.itemDropped(itemReferencePresent(items, item, false).getName());
                 // Remove the object
@@ -462,8 +479,8 @@ public class Model
                     success = items.get(i);
                     // If remove is true
                     if (remove == true) {
-                        // replace the item with a null
-                        items.set(i, null);
+                        // Remove the item
+                        items.remove(i);
                     }
                     break;
                 } else if (items.get(i) instanceof Container && ((Container) items.get(i)).getItems().size() > 0) {
@@ -641,5 +658,76 @@ public class Model
     
     // Update the location of the NPCs
     public void updateNPClocation() {
+        // Move the NPCs
+        for (int b = 0; b < map.gameGrid[0].length; b++) {
+            for (int a = 0; a < map.gameGrid.length; a++) {
+                // If there is a room
+                if (map.gameGrid[a][b] != null) {
+                    // If it contains an entity
+                    if (map.gameGrid[a][b].entities.size() > 0) {
+                        // Get the entities in the room
+                        ArrayList<Entity> presentEntities = map.gameGrid[a][b].entities;
+                        // Establish list of entities to remove from the room
+                        ArrayList<Entity> removeEntities = new ArrayList<>();
+                        // For every entity
+                        for (Entity e: presentEntities) {
+                            // If the entity should move
+                            if (e.checkMove() == true && e.moved == false) {
+                                // Move in a random direction
+                                int directions = map.gameGrid[a][b].doors.size();
+                                // Generate a random number
+                                System.out.println("Generating random number: ");
+                                Random generator = new Random(); 
+                                int i = generator.nextInt(directions);
+                                System.out.print(i);
+                                String direction = map.gameGrid[a][b].doors.get(i).direction;  
+                                System.out.println(direction);
+                                switch (direction) {
+                                    case "north":
+                                        map.gameGrid[a][b-1].addEntity(e, 9999);
+                                        e.moved = true;
+                                        removeEntities.add(e);
+                                        break;
+                                    case "south":
+                                        map.gameGrid[a][b+1].addEntity(e, 9999);
+                                        removeEntities.add(e);
+                                        e.moved = true;
+                                        break;
+                                    case "east":
+                                        map.gameGrid[a+1][b].addEntity(e, 9999);
+                                        removeEntities.add(e);
+                                        e.moved = true;
+                                        break;
+                                    case "west":
+                                        map.gameGrid[a-1][b].addEntity(e, 9999);
+                                        removeEntities.add(e);
+                                        e.moved = true;
+                                        break;
+                                }
+                            }
+                        }
+                        
+                        // Remove any entities which have moved
+                        for (int i = 0; i < removeEntities.size(); i++) {
+                            // Remove it from it's current room
+                            map.gameGrid[a][b].entities.remove(removeEntities.get(i));
+                                
+                        }
+                    }
+                } 
+            }
+        }
+        
+        // Set every NPC moved to false
+        for (int b = 0; b < map.gameGrid[0].length; b++) {
+            for (int a = 0; a < map.gameGrid.length; a++) {
+                if (map.gameGrid[a][b] != null) {
+                    ArrayList<Entity> presentEntities = map.gameGrid[a][b].entities;
+                    for (Entity e: presentEntities) {
+                        e.moved = false;
+                    }
+                }
+            }
+        }
     }
 }

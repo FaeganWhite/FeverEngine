@@ -12,8 +12,11 @@ public class Item
     boolean visible = true;
     Image itemImage;
     ImageView itemImageView;
+    ImageView shadowView;
     double[] drawPosition = {0, 0, 0};
     double scaleSize;
+    double[] permenantPosition;
+    boolean flat;
     
     public Item(String setName, String setDescription, double setWeight, int setSize, Image newImage, double newScaleSize){
         name = setName;

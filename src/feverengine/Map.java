@@ -2,6 +2,8 @@ package feverengine;
 
 import java.util.ArrayList;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+
 /**
  * The map class generates the rooms and items at the beginning of the game as well as storing
  * the positions of the rooms throughout the game.
@@ -48,21 +50,35 @@ public class Map
         gameGrid[5][6] = hallway;
         
         // Establish all the item positions in the rooms
-        double[] square = {-1, 0.8, 1, 1};
-        bedroom.addItemPosition(square);
+        ItemArea bedroomFloor = new ItemArea("floor", -0.9, 0.9, 1, 1);
+        ItemArea bedroomFloor2 = new ItemArea("floor", -0.8, 0.8, 0.3, 0.9);
+        bedroom.addItemPosition(bedroomFloor);
+        bedroom.addItemPosition(bedroomFloor2);
         
-        double[] square2 = {-0.6, 0.7, 1, 0.6};
-        bathroom.addItemPosition(square2);
+        ItemArea bathroomFloor = new ItemArea("floor", -0.8, 0.6, 0.4 , 0.5, 0.8, 0.95, -1, 0.95);
+        bathroom.addItemPosition(bathroomFloor);
         
-        double[] trianglek = {-0.2, 0.5, 0.7, 0.95, -1, 0.95};
-        kitchen.addItemPosition(trianglek);
+        ItemArea kitchenFloor = new ItemArea("floor", -0.2, 0.5, 0.7, 0.95, -1, 0.95);
+        ItemArea kitchenCounter = new ItemArea("counter", -0.2, 0, 0.7, 0.06, 0.7, 0.1, -0.3, 0.04);
+        kitchen.addItemPosition(kitchenFloor);
+        kitchen.addItemPosition(kitchenCounter);
 
-        double[] square4 = {0, 0.7, 1, 1};
-        frontRoom.addItemPosition(square);
+        ItemArea frontRoomCounter = new ItemArea("floor", 0, 0.7, 1, 1);
+        frontRoom.addItemPosition(frontRoomCounter);
+        
+        
+        //-------------------------------------------------- Add all the lights
+        RoomLight bathroomLight = new RoomLight(0, -1 , 0, Color.WHITE, 1);
+        bathroom.lights.add(bathroomLight);
+        
+        RoomLight bedroomLight = new RoomLight(-0.5, -0.5, 0, Color.WHITE, 0.9);
+        RoomLight bedroomLight2 = new RoomLight(-1, 0, 1, Color.WHITE, 0.9);
+        bedroom.lights.add(bedroomLight);
+        bedroom.lights.add(bedroomLight2);
     }
     
     // Establish the items in the game
-    Item lamp = new Item("lamp","A rusty oil lamp",0.5, 3, new Image("feverengine/images/items/lamp1.png"), 2);
+    Item lamp = new Item("lamp","A rusty oil lamp",0.5, 3, new Image("feverengine/images/items/lamp1.png"), 3);
     Item cheese = new Food("cheese","Some smelly cheese.",0.3, 1, 5, new Image("feverengine/images/items/cheese1.png"), 1);
     
     // Establish the containers in the game (name, description, weight, size, open, locked, image, image scale)
@@ -81,11 +97,9 @@ public class Map
     // Establish the keys (name, description, weight, size, item it unlocks, image, image scale)
     Item key1 = new Key("key","A tiny key. It looks as if it will fit a very small lock.", 0.1, 1, safe, new Image("feverengine/images/items/key1.png"), 1);
     
-    
-    
     // Establish the entities in the game world (name, description, health, strength, image, image scale)
     
-    Entity mutant = new Entity("Zorg","A mutant. They look angry.", 10, 10, new Image("feverengine/images/entities/MutantTest.png"), 1);
+    Entity mutant = new Entity("Zorg","A mutant. They look angry.", 10, 10, new Image("feverengine/images/entities/MutantTest.png"), 10);
     
     private void populate() {
         
@@ -115,7 +129,7 @@ public class Map
         stairs.doors.add(doorSouth);
         
         // Add the entities to the map
-        
+        //bedroom.addEntity(mutant, 9999);
     }
     
     // Load a new map from a string
@@ -144,7 +158,7 @@ public class Map
                 for (int a = 0; a < itemLibrary.size(); a++) {
                     if (itemLibrary.get(a).getName().equals(itemName)) {
                         // Add the item from the item library to the current room  
-                        currentRoom.add(itemLibrary.get(a));
+                        currentRoom.add(itemLibrary.get(a), 9999);
                         // Load the attributes from the file
                         addAttributes(currentRoom.getItems().get(currentRoom.getItems().size()-1), line);
                     }
@@ -308,7 +322,7 @@ public class Map
     // Add the item to the room and library of all items
     private void populate(Item item, Room room) {
         // Add the item to the room
-        room.add(item);
+        room.add(item, 9999);
         // If the item isn't already present in the Library of items
         if (!itemLibrary.contains(item)) {
             // Add the item to the library of items

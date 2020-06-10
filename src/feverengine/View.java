@@ -33,6 +33,13 @@ import javafx.stage.Screen;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.BlurType;
 import javafx.scene.transform.Scale;
+import javafx.scene.effect.InnerShadow;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
+import javafx.scene.transform.Rotate;
+import javafx.scene.effect.Shadow;
+import javafx.scene.transform.Shear;
+import javafx.scene.transform.Scale;
 
 public class View extends Application {
     
@@ -126,7 +133,9 @@ public class View extends Application {
     boolean fullscreen = true;
     
     // Developer variables
-    boolean showItemAreas = false; // Should the item positions be highlighted in red?
+    boolean showItemAreas = false; // Should the item positions be highlighted in red?7
+    boolean showLights = false; // Show the lights
+    boolean moveItems = true;
     
     @Override
     public void start(Stage window) {
@@ -324,62 +333,96 @@ public class View extends Application {
     private void keyPressed(KeyEvent event) {
         // If up is pressed
         if (event.getCode() == KeyCode.UP) {
-            // Scroll up
-            textScroll.setVvalue(textScroll.getVvalue()-(35/outputTextFlow.getHeight()));
+            if (moveItems == false) {
+                // Scroll up
+                textScroll.setVvalue(textScroll.getVvalue()-(35/outputTextFlow.getHeight()));
+            } else {
+                // Move all the items up
+                for (Item item: model.map.gameGrid[model.player.x][model.player.y].getItems()) {
+                    item.drawPosition[1]-=0.05;
+                    updateMainImage();
+                    item.drawPosition[2] = item.drawPosition[1];
+                }
+            }
         } 
         // If down is pressed
         else if (event.getCode() == KeyCode.DOWN) {
-            // Scroll down
-            textScroll.setVvalue(textScroll.getVvalue()+(35/outputTextFlow.getHeight()));
+            if (moveItems == false) {
+                // Scroll down
+                textScroll.setVvalue(textScroll.getVvalue()+(35/outputTextFlow.getHeight()));
+            } else {
+                // Move all the items down
+                for (Item item: model.map.gameGrid[model.player.x][model.player.y].getItems()) {
+                    item.drawPosition[1]+=0.05;
+                    updateMainImage();
+                    item.drawPosition[2] = item.drawPosition[1];
+                }
+            }
         } 
         // If left is pressed
         else if (event.getCode() == KeyCode.LEFT) {
-            // If the input is blannk
-            if (input.getText().equals("")) {
-                // set the input text to the previous input
-                input.setText(previousInputText.get(previousInputText.size()-1));
-                // move the input cursor to the end
-                input.end();
-                // set scrolling = true
-                scroll = true;
-            } else {
-                // if the scroll will be within bounds
-                if (scrollPosition < previousInputText.size()) {
-                    // and scrolling is true
-                    if (scroll == true) {
-                        // move the scroll position along
-                        scrollPosition += 1;
-                        // set the input to the previous input at the scroll position
-                        input.setText(previousInputText.get(previousInputText.size()-(1+scrollPosition)));
-                        // move the cursor to the end
-                        input.end();
+            if (moveItems == false) {
+                // If the input is blannk
+                if (input.getText().equals("")) {
+                    // set the input text to the previous input
+                    input.setText(previousInputText.get(previousInputText.size()-1));
+                    // move the input cursor to the end
+                    input.end();
+                    // set scrolling = true
+                    scroll = true;
+                } else {
+                    // if the scroll will be within bounds
+                    if (scrollPosition < previousInputText.size()) {
+                        // and scrolling is true
+                        if (scroll == true) {
+                            // move the scroll position along
+                            scrollPosition += 1;
+                            // set the input to the previous input at the scroll position
+                            input.setText(previousInputText.get(previousInputText.size()-(1+scrollPosition)));
+                            // move the cursor to the end
+                            input.end();
+                        }
                     }
+                }
+            } else {
+                // Move all the items left
+                for (Item item: model.map.gameGrid[model.player.x][model.player.y].getItems()) {
+                    item.drawPosition[0]-=0.05;
+                    updateMainImage();
                 }
             }
         } 
         // if right arrow key is pressed
         else if (event.getCode() == KeyCode.RIGHT) {
-            // if the input isn't blank
-            if (!input.getText().equals("")) {
-                // if scrolling is true
-                if (scroll == true) {
-                    // if the scroll will be within bounds
-                    if (scrollPosition-1 >= 0) {
-                        // move the scroll position along
-                        scrollPosition -= 1;
-                        // set the input to the previous input at the scrolling position
-                        input.setText(previousInputText.get(previousInputText.size()-(1+scrollPosition)));
-                        // move the cursor to the end
-                        input.end();
+            if (moveItems == false) {
+                // if the input isn't blank
+                if (!input.getText().equals("")) {
+                    // if scrolling is true
+                    if (scroll == true) {
+                        // if the scroll will be within bounds
+                        if (scrollPosition-1 >= 0) {
+                            // move the scroll position along
+                            scrollPosition -= 1;
+                            // set the input to the previous input at the scrolling position
+                            input.setText(previousInputText.get(previousInputText.size()-(1+scrollPosition)));
+                            // move the cursor to the end
+                            input.end();
+                        } 
+                        // otherwise if the move will be out of bounds
+                        else {
+                            // set the input text field to blank
+                            input.setText("");
+                            // set scrolling to false
+                            scroll = false;
+                        }
                     } 
-                    // otherwise if the move will be out of bounds
-                    else {
-                        // set the input text field to blank
-                        input.setText("");
-                        // set scrolling to false
-                        scroll = false;
-                    }
-                } 
+                }
+            } else {
+                // Move all the items right
+                for (Item item: model.map.gameGrid[model.player.x][model.player.y].getItems()) {
+                    item.drawPosition[0]+=0.05;
+                    updateMainImage();
+                }
             }
         }
         if (event.getCode() != KeyCode.LEFT && event.getCode() != KeyCode.RIGHT) {
@@ -520,6 +563,7 @@ public class View extends Application {
         
         mainImageStack.getChildren().clear();
         mainImageStack.getChildren().add(mainImageView);
+       
         
         // Establish and clear the graphics context
         GraphicsContext gc = mainImageCanvas.getGraphicsContext2D();
@@ -535,16 +579,17 @@ public class View extends Application {
         mainImageView.setImage(currentRoomImage);
         
         
-        //---------------------------------------------- Draw the item areas
+        //-------------------------------------------------- Draw the item areas
         
-        // If they item areas should be shown
+        // If the item areas should be shown
         if (showItemAreas == true) {
             // Get the item positions from the rooms
-            ArrayList<double[]> itemAreas = model.map.gameGrid[x][y].itemPositions;
+            ArrayList<ItemArea> itemAreas = model.map.gameGrid[x][y].itemAreas;
             // For every item position
-            for (double[] area: itemAreas) {
-               // Check how many nodes a position has
-               switch (area.length) {
+            for (ItemArea itemArea: itemAreas) {
+                double[] area = itemArea.coordinates;
+                // Check how many nodes a position has
+                switch (area.length) {
                     // if the position shape has 4 values (square)
                     case 4:
                         // Draw a red rectangle
@@ -568,10 +613,40 @@ public class View extends Application {
                         gc.setFill(Color.RED);
                         gc.fillPolygon(xPoints, yPoints,3);
                         break;
+                    case 8:
+                        // Draw a red quadrilateral
+                        x1 = widerGridSize+(area[0]*widerGridSize);
+                        y1 = gridSize+(area[1]*gridSize);
+                        x2 = widerGridSize+(area[2]*widerGridSize);
+                        y2 = gridSize+(area[3]*gridSize);
+                        x3 = widerGridSize+(area[4]*widerGridSize);
+                        y3 = gridSize+(area[5]*gridSize);
+                        double x4 = widerGridSize+(area[6]*widerGridSize);
+                        double y4 = gridSize+(area[7]*gridSize);
+                        double[] xPointsQuad = {x1, x2, x3, x4};
+                        double[] yPointsQuad = {y1, y2, y3, y4};
+                        gc.setFill(Color.RED);
+                        gc.fillPolygon(xPointsQuad, yPointsQuad,4);
+                        break;
                }
             }
                         
         }
+        
+        
+        
+        //----------------------------------------------------- Draw the lights
+        
+        if (showLights == true) {
+            gc.setGlobalAlpha(1);
+            for (RoomLight light: model.map.gameGrid[x][y].lights) {
+                gc.setFill(light.color);
+                gc.fillOval((widerGridSize+light.position[0]*widerGridSize)-10, (gridSize+light.position[1]*gridSize)-10, 20, 20);
+            }
+        }
+        
+        
+        
         
         //-------------------------------------------- Add the items to the room
 
@@ -579,29 +654,194 @@ public class View extends Application {
         for (Item item: model.map.gameGrid[x][y].getItems()) {
             if (item != null) {
                 if (item.itemImage != null) {
-                    // Add the item to the main image stack
-                    mainImageStack.getChildren().add(item.getItemImageView());
             
                     // Get the transform array for the current item position 
                     double[] transformArray = item.drawPosition;
                 
                     // Scale the item image according to its size and distance
-                    item.getItemImageView().setFitWidth(transformArray[2]*item.getScaleSize()*widerGridSize*0.1);
+                    item.getItemImageView().setFitWidth((Math.abs(transformArray[2]*transformArray[2]*0.7)+0.3)*item.getScaleSize()*widerGridSize*0.1);
                     item.getItemImageView().setPreserveRatio(true);
-                
+                    
+                    
+                    // Establish shadow height which can be accounted for when positioning item                    
                     double shadowHeight = gridSize/10;
                     double shadowWidth = shadowHeight/2;
-                
-                    // Add the shadow effect
-                    DropShadow shadow = new DropShadow();  
-                    shadow.setBlurType(BlurType.GAUSSIAN);  
-                    shadow.setColor(Color.BLACK);  
-                    shadow.setHeight(shadowHeight);  
-                    shadow.setRadius(12);  
-                    shadow.setWidth(shadowWidth);
-                    shadow.setOffsetY(shadowHeight/10);
-                    item.getItemImageView().setEffect(shadow);  
-                
+                    
+                    // Get all the lights in the room
+                    ArrayList<RoomLight> lights = model.map.gameGrid[model.player.x][model.player.y].lights;
+                    
+                    // Initialise the object lighting effect
+                    Lighting lighting = new Lighting(); 
+                    
+                    // Initialise the shadow effect
+                    DropShadow itemShadow = new DropShadow();
+                    
+                    // For every light in the room
+                    for (RoomLight light: lights) {
+
+                        // Establish the shadow variables
+                        double angle = 0;
+                        double radius = 0;
+                        double opacity = 1;
+                        
+                        // Add lighting effects to the item
+                        
+                        if (light.type.equals("directional")) {
+                            // Set the shadow variables based on the light's properties
+                            angle = light.angle;
+                            opacity = 1;
+                            radius = 0;
+                            
+                            // Add the lighting effect to the item
+                            Light.Distant directionalLight = new Light.Distant();
+                            directionalLight.setColor(light.color);
+                            directionalLight.setAzimuth(angle); 
+                            directionalLight.setElevation(90*light.intensity);
+                            lighting.setLight(directionalLight);
+                            
+                        } else if (light.type.equals("point")) {
+                            // Get the angle between the light and the item
+                            angle = (float) Math.toDegrees(Math.atan2(light.position[1] - item.drawPosition[1], light.position[0] - item.drawPosition[0]));
+                            
+                            if(angle < 0){
+                                angle += 360;
+                            }
+                            
+                            // Get the distance between the light and the item
+                            double ac = Math.abs(light.position[2] - item.drawPosition[2]);
+                            double cb = Math.abs(light.position[0] - item.drawPosition[0]);
+                            double zDistance = Math.hypot(ac*2, cb);
+                            
+                            // Add the lighting effect to the item
+                            Light.Distant directionalLight = new Light.Distant();
+                            directionalLight.setColor(light.color);
+                            directionalLight.setAzimuth(angle);
+                            
+                            double zDifference = Math.abs(light.position[2] - item.drawPosition[2]); // z difference between light and item
+                            
+                            directionalLight.setElevation(20+50*(-zDifference+0.5));
+                            lighting.setLight(directionalLight);
+                            
+                            radius = 0;
+                            radius = 5+(45*zDistance/4);
+                            
+                            opacity = light.intensity/(zDistance);
+                        }
+                    
+                        // Add the drop-shadow effect
+                        DropShadow shadow = new DropShadow();  
+                        shadow.setBlurType(BlurType.GAUSSIAN);  
+                        shadow.setColor(Color.BLACK);  
+                        shadow.setHeight(shadowHeight);  
+                        shadow.setRadius(12);  
+                        shadow.setWidth(shadowWidth);
+                        shadow.setOffsetY(shadowHeight/10);
+                        // Layer up the shadows on the itemShadow
+                        itemShadow.setInput(shadow);
+                        
+                        
+                        //------------------------------------------------ Add item shadows
+                        
+                        ImageView shadowView = new ImageView(item.getItemImageView().getImage());
+                        
+                        // Set the shadow size to the item size
+                        shadowView.setFitWidth(item.getItemImageView().getBoundsInParent().getWidth());
+                        shadowView.setPreserveRatio(true);
+                        
+                        
+                        
+                        // Rotate it depending on the angle of the light source
+  
+                        int xBigger; // Variable to see if light x is bigger than item x
+                        
+                        // Skew the shadow left or right depending upon x position
+                        if (light.position[0] > item.drawPosition[0]) {
+                            xBigger = 1;
+                        } else {
+                            xBigger = -1;
+                        }
+                        
+                        // Calculate the x skew factor based upon the x difference
+                        double xSkewFactor = Math.abs(light.position[0] - item.drawPosition[0]);
+                        double zRotateFactor = 90/((Math.abs((0.5+light.position[2]/2) - (item.drawPosition[2]))*2)+1);
+                        double zSkewFactor = Math.abs(light.position[2] - item.drawPosition[2]);
+                        
+                        double xSkewFactorMax1 = xSkewFactor;
+                        if (xSkewFactorMax1 > 1) {
+                            xSkewFactorMax1 = 1;
+                        }
+                        System.out.println(zRotateFactor);
+                        
+                        int zBigger; // Variable to see if light z is bigger than item z
+                        
+                        // Flip the shadow up or down depending upon z position
+                        if (light.position[2] > item.drawPosition[2]) {
+                            zBigger = 1;
+                        } else {
+                            zBigger = -1;
+                        }
+                        
+                        // Get the transformation center of the tansformations
+                        double transformx = shadowView.getBoundsInParent().getWidth()/2;
+                        double transformy = shadowView.getBoundsInParent().getHeight();
+                        
+                        
+                        // Skew the shadow
+                        shadowView.getTransforms().add(new Shear(xBigger*xSkewFactor*zBigger*zSkewFactor, 0, transformx, transformy));
+
+                        // If the item is to the right of ther light
+                        if (xBigger == -1) {
+                            // Transform the shadow (flip and rotate)
+                            shadowView.getTransforms().add(new Scale(-xBigger, zBigger, transformx, transformy));
+                            shadowView.getTransforms().add(new Rotate(zRotateFactor*(xSkewFactorMax1) , transformx, transformy));
+                        } else {
+                            // Transform the shadow (flip and rotate)
+                            shadowView.getTransforms().add(new Scale(xBigger, -zBigger, transformx, transformy));
+                            shadowView.getTransforms().add(new Rotate((zRotateFactor*(xSkewFactorMax1))+180 , transformx, transformy));
+                        }
+                        
+                        // Get the distance between the light and the item
+                        double ac = Math.abs(light.position[2] - item.drawPosition[2]);
+                        double cb = Math.abs(light.position[0] - item.drawPosition[0]);
+                        double zDistance = Math.hypot(ac*2, cb);
+                        
+                        shadowView.getTransforms().add(new Scale(1, zDistance, transformx, transformy));
+                        
+                        Shadow mainShadow = new Shadow();
+                        
+
+                        //setting the type of blur for the shadow 
+                        mainShadow.setBlurType(BlurType.GAUSSIAN); 
+                        mainShadow.setColor(Color.BLACK);
+                        mainShadow.setHeight(5); 
+                        mainShadow.setWidth(5);
+                        // Set hardness proportio nal to distance from the light
+                        mainShadow.setRadius(radius);
+                        // Add the shadow to the shadow view
+                        shadowView.setEffect(mainShadow);
+                        // Set opacity relative to light hardness
+                        shadowView.setOpacity(opacity);
+                        
+                        // Add the item shadow to the main image stack
+                        mainImageStack.getChildren().add(shadowView);
+                        // Set the current X to the room's item position
+                        double imageX = transformArray[0]*widerGridSize;
+                        // Set the current y to the room's item position minus half the item height to account for different sized items
+                        double imageY = transformArray[1]*gridSize - ((item.getItemImageView().getBoundsInParent().getHeight())/2);
+            
+                        // Move the item's image position to match that of the room co-ordinates
+                        shadowView.setTranslateX(shadowView.getTranslateX()+imageX);
+                        shadowView.setTranslateY(shadowView.getTranslateY()+imageY);
+                    }
+                    
+                    // Ad the drop shadow to the lighting effect
+                    itemShadow.setInput(lighting);
+                    // Add the lighting effect to the item's image view
+                    item.getItemImageView().setEffect(itemShadow);
+                    
+                    // Add the item to the main image stack
+                    mainImageStack.getChildren().add(item.getItemImageView());
+                    
                     // Set the current X to the room's item position
                     double imageX = transformArray[0]*widerGridSize;
                     // Set the current y to the room's item position minus half the item height to account for different sized items
@@ -609,7 +849,18 @@ public class View extends Application {
             
                     // Move the item's image position to match that of the room co-ordinates
                     item.getItemImageView().setTranslateX(imageX);
-                    item.getItemImageView().setTranslateY(imageY);           
+                    item.getItemImageView().setTranslateY(imageY);
+                    
+                    Light.Spot spotLight = new Light.Spot();
+                    spotLight.setColor(Color.ORANGE);
+                    spotLight.setX(widerGridSize+100+widerGridSize*item.drawPosition[0]); 
+                    spotLight.setY(gridSize+100+gridSize*item.drawPosition[1]);                    
+                    spotLight.setZ(200);
+
+                    spotLight.setSpecularExponent(0.5);
+                    Lighting spotLighting = new Lighting();
+                    spotLighting.setLight(spotLight);
+                    mainImageView.setEffect(spotLighting);
                 }
             }
         }
@@ -636,18 +887,55 @@ public class View extends Application {
                     entity.entityImageView.setFitWidth(transformArray[2]*entity.scaleSize*widerGridSize*0.1);
                     entity.entityImageView.setPreserveRatio(true);
                 
+                    // Get all the lights in the room
+                    ArrayList<RoomLight> lights = model.map.gameGrid[model.player.x][model.player.y].lights;
+                    
+                    // Initialise the object lighting element
+                    Lighting lighting = new Lighting(); 
+                    
+                    // Initialise the shadow effect
+                    DropShadow entityShadow = new DropShadow();
+                    
+                    
                     double shadowHeight = gridSize/10;
                     double shadowWidth = shadowHeight/2;
+                    
+                    // For every light in the room
+                    for (RoomLight light: lights) {
+                        
+                        // Get the angle between the light and the item
+                        float angle = (float) Math.toDegrees(Math.atan2(light.position[1] - entity.drawPosition[1], light.position[0] - entity.drawPosition[0]));
+                        if(angle < 0){
+                            angle += 360;
+                        }
+                                
+                        // Add lighting effects to the item
+                        
+                        if (light.type.equals("directional")) {
+                            Light.Distant directionalLight = new Light.Distant();
+                            directionalLight.setColor(light.color);
+                            directionalLight.setAzimuth(angle); 
+                            directionalLight.setElevation(90*light.intensity);
+                            lighting.setLight(directionalLight);
+                        }
+                        
+                        // Add the shadow effect
+                        DropShadow shadow = new DropShadow();  
+                        shadow.setBlurType(BlurType.GAUSSIAN);  
+                        shadow.setColor(Color.BLACK);  
+                        shadow.setHeight(shadowHeight);  
+                        shadow.setRadius(12);  
+                        shadow.setWidth(shadowWidth);
+                        shadow.setOffsetY(shadowHeight/10);
+                        // Layer up the shadows on the entityShadow
+                        entityShadow.setInput(shadow);
+                    }
+                    
+                    entityShadow.setInput(lighting);
+                    entity.entityImageView.setEffect(entityShadow);
+                    
                 
-                    // Add the shadow effect
-                    DropShadow shadow = new DropShadow();  
-                    shadow.setBlurType(BlurType.GAUSSIAN);  
-                    shadow.setColor(Color.BLACK);  
-                    shadow.setHeight(shadowHeight);  
-                    shadow.setRadius(12);  
-                    shadow.setWidth(shadowWidth);
-                    shadow.setOffsetY(shadowHeight/10);
-                    entity.entityImageView.setEffect(shadow);  
+                    
                 
                     // Set the current X to the room's item position
                     double imageX = transformArray[0]*widerGridSize;
@@ -661,6 +949,8 @@ public class View extends Application {
                 }
             }
         }
+        
+       
         
         gc.setGlobalAlpha(1);
         addLines(mainImageCanvas);
@@ -680,18 +970,35 @@ public class View extends Application {
             // set the grid square size according to the map height
              size = gridSize/model.map.gameGrid[0].length;
         }
+        // Get the player location
         int x = model.player.getX();
         int y = model.player.getY();
+        // Initialise graphics context
         GraphicsContext gc = mapCanvas.getGraphicsContext2D();
+        // Clear the gc
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, gridSize, gridSize);
+        // For every space in the game grid
         for (int b = 0; b < model.map.gameGrid[0].length; b++) {
             for (int a = 0; a < model.map.gameGrid.length; a++) {
+                // If there is a room
                 if (model.map.gameGrid[a][b] != null) {
+                    // If it's visited
                     if (model.map.gameGrid[a][b].visited == true) {
+                        // Draw a white square
                         gc.setFill(Color.WHITE);
                         gc.fillRect(a*size, b*size, size, size);
                     }
+                    // If it contains an entity
+                    if (model.map.gameGrid[a][b].entities.size() > 0) {
+                        // Draw a green circle
+                        gc.setFill(Color.LIME);
+                        gc.fillOval((a*size)+(size/4), (b*size)+(size/4), size/2, size/2);
+                    }
                 } 
+                // If the player is there
                 if (a == x && y == b) {
+                    // Draw a red circle
                     gc.setFill(Color.RED);
                     gc.fillOval((a*size)+(size/4), (b*size)+(size/4), size/2, size/2);
                 }
@@ -714,7 +1021,23 @@ public class View extends Application {
         }
     }
     
+    // Toggle whether to draw the item positions on to the main image
+    public void toggleLights() {
+        if (showLights == false) {
+            showLights = true;
+        } else {
+            showLights = false;
+        }
+    }
     
+    // Toggle whether to move the item positions with the keyboard
+    public void toggleMoveItems() {
+        if (moveItems == false) {
+            moveItems = true;
+        } else {
+            moveItems = false;
+        }
+    }
     
     
     //--------------------------------------------------------------- Effects
